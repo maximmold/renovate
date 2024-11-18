@@ -77,7 +77,7 @@ export function getPrBody(
   branchConfig: BranchConfig,
   prBodyConfig: PrBodyConfig,
   config: RenovateConfig,
-): string {
+): object {
   massageUpdateMetadata(branchConfig);
   let warnings = '';
   warnings += getWarnings(branchConfig);
@@ -100,6 +100,7 @@ export function getPrBody(
   };
 
   let prBody = '';
+  let prComments = [];
   if (branchConfig.prBodyTemplate) {
     const prBodyTemplate = branchConfig.prBodyTemplate;
     prBody = template.compile(prBodyTemplate, content, false);
@@ -107,7 +108,9 @@ export function getPrBody(
     prBody = prBody.replace(regEx(/\n\n\n+/g), '\n\n');
     const prDebugData64 = toBase64(JSON.stringify(prBodyConfig.debugData));
     prBody += `\n<!--renovate-debug:${prDebugData64}-->\n`;
-    prBody = platform.massageMarkdown(prBody);
+    const parts = platform.massageMarkdown(prBody);
+    prBody = parts.first;
+    prComments = parts.rest;
 
     if (prBodyConfig?.rebasingNotice) {
       prBody = prBody.replace(
@@ -116,5 +119,8 @@ export function getPrBody(
       );
     }
   }
-  return prBody;
+  return {
+    body: prBody,
+    comments: prComments
+  };
 }

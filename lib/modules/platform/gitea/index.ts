@@ -997,7 +997,7 @@ const platform: Platform = {
     }
   },
 
-  massageMarkdown(prBody: string): string {
+  massageMarkdown(prBody: string): object {
     return smartTruncate(smartLinks(prBody), maxBodyLength());
   },
 

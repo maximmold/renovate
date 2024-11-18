@@ -145,6 +145,12 @@ export interface UpdatePrConfig {
    * @see {@link labels}
    */
   removeLabels?: string[] | null;
+
+  /**
+   * Specifies an array of comments to be added.
+   * @see {@link labels}
+   */
+  prComments?: string[] | null;
 }
 export interface ReattemptPlatformAutomergeConfig {
   number: number;
@@ -240,7 +246,7 @@ export interface Platform {
   ensureIssue(
     issueConfig: EnsureIssueConfig,
   ): Promise<EnsureIssueResult | null>;
-  massageMarkdown(prBody: string): string;
+  massageMarkdown(prBody: string): object;
   updatePr(prConfig: UpdatePrConfig): Promise<void>;
   mergePr(config: MergePRConfig): Promise<boolean>;
   addReviewers(number: number, reviewers: string[]): Promise<void>;
