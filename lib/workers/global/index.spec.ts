@@ -1,6 +1,7 @@
 import { ERROR, WARN } from 'bunyan';
 import fs from 'fs-extra';
-import { RenovateConfig, logger, mocked } from '../../../test/util';
+import type { RenovateConfig } from '../../../test/util';
+import { logger, mocked } from '../../../test/util';
 import { GlobalConfig } from '../../config/global';
 import * as _presets from '../../config/presets';
 import { CONFIG_PRESETS_INVALID } from '../../constants/error-messages';
@@ -42,6 +43,7 @@ const initPlatform = jest.spyOn(platform, 'initPlatform');
 describe('workers/global/index', () => {
   beforeEach(() => {
     logger.getProblems.mockImplementation(() => []);
+    logger.logLevel.mockImplementation(() => 'info');
     initPlatform.mockImplementation((input) => Promise.resolve(input));
     delete process.env.AWS_SECRET_ACCESS_KEY;
     delete process.env.AWS_SESSION_TOKEN;

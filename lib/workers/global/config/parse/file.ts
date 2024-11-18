@@ -16,9 +16,7 @@ export async function getParsedContent(file: string): Promise<RenovateConfig> {
   switch (upath.extname(file)) {
     case '.yaml':
     case '.yml':
-      return parseSingleYaml(await readSystemFile(file, 'utf8'), {
-        json: true,
-      });
+      return parseSingleYaml(await readSystemFile(file, 'utf8'));
     case '.json5':
     case '.json':
       return parseJson(
@@ -72,6 +70,7 @@ export async function getConfig(env: NodeJS.ProcessEnv): Promise<AllConfig> {
       logger.fatal(err.message);
       process.exit(1);
     } else if (env.RENOVATE_CONFIG_FILE) {
+      logger.debug({ err }, 'Parse error');
       logger.fatal('Error parsing config file');
       process.exit(1);
     }

@@ -1,3 +1,4 @@
+import { codeBlock } from 'common-tags';
 import { Fixtures } from '../../../../test/fixtures';
 import type { PackageDependency } from '../types';
 import { extractVariables, getDep } from './extract';
@@ -395,6 +396,31 @@ describe('modules/manager/dockerfile/extract', () => {
       ]);
     });
 
+    it('handles COPY --link --from', () => {
+      const res = extractPackageFile(
+        codeBlock`
+          FROM scratch
+          COPY --link --from=gcr.io/k8s-skaffold/skaffold:v0.11.0 /usr/bin/skaffold /usr/bin/skaffold
+        `,
+        '',
+        {},
+      );
+      expect(res).toEqual({
+        deps: [
+          {
+            autoReplaceStringTemplate:
+              '{{depName}}{{#if newValue}}:{{newValue}}{{/if}}{{#if newDigest}}@{{newDigest}}{{/if}}',
+            currentDigest: undefined,
+            currentValue: 'v0.11.0',
+            datasource: 'docker',
+            depName: 'gcr.io/k8s-skaffold/skaffold',
+            depType: 'final',
+            replaceString: 'gcr.io/k8s-skaffold/skaffold:v0.11.0',
+          },
+        ],
+      });
+    });
+
     it('skips named multistage COPY --from tags', () => {
       const res = extractPackageFile(
         'FROM node:6.12.3 as frontend\n\n# comment\nENV foo=bar\nCOPY --from=frontend /usr/bin/node /usr/bin/node\n',
@@ -437,7 +463,7 @@ describe('modules/manager/dockerfile/extract', () => {
 
     it('detects ["stage"] and ["final"] deps of docker multi-stage build.', () => {
       const res = extractPackageFile(
-        'FROM node:8.15.1-alpine as skippedfrom\nFROM golang:1.7.3 as builder\n\n# comment\nWORKDIR /go/src/github.com/alexellis/href-counter/\nRUN go get -d -v golang.org/x/net/html  \nCOPY app.go    .\nRUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .\n\nFROM alpine:latest  \nRUN apk --no-cache add ca-certificates\nWORKDIR /root/\nCOPY --from=builder /go/src/github.com/alexellis/href-counter/app .\nCMD ["./app"]\n',
+        'FROM node:8.15.1-alpine as skippedfrom\nFROM golang:1.23.3 as builder\n\n# comment\nWORKDIR /go/src/github.com/alexellis/href-counter/\nRUN go get -d -v golang.org/x/net/html  \nCOPY app.go    .\nRUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .\n\nFROM alpine:latest  \nRUN apk --no-cache add ca-certificates\nWORKDIR /root/\nCOPY --from=builder /go/src/github.com/alexellis/href-counter/app .\nCMD ["./app"]\n',
         '',
         {},
       )?.deps;
@@ -456,11 +482,11 @@ describe('modules/manager/dockerfile/extract', () => {
           autoReplaceStringTemplate:
             '{{depName}}{{#if newValue}}:{{newValue}}{{/if}}{{#if newDigest}}@{{newDigest}}{{/if}}',
           currentDigest: undefined,
-          currentValue: '1.7.3',
+          currentValue: '1.23.3',
           datasource: 'docker',
           depName: 'golang',
           depType: 'stage',
-          replaceString: 'golang:1.7.3',
+          replaceString: 'golang:1.23.3',
         },
         {
           autoReplaceStringTemplate:

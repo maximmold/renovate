@@ -3,13 +3,13 @@ import { logger } from '../../../logger';
 import { readLocalFile } from '../../../util/fs';
 import { newlineRegex, regEx } from '../../../util/regex';
 import { RubyVersionDatasource } from '../../datasource/ruby-version';
-import { RubyGemsDatasource } from '../../datasource/rubygems';
+import { RubygemsDatasource } from '../../datasource/rubygems';
 import type { PackageDependency, PackageFileContent } from '../types';
 import { delimiters, extractRubyVersion, getLockFilePath } from './common';
 import { extractLockFileEntries } from './locked-version';
 
 function formatContent(input: string): string {
-  return input.replace(regEx(/^ {2}/), '') + '\n'; //remove leading witespace and add a new line at the end
+  return input.replace(regEx(/^ {2}/), '') + '\n'; //remove leading whitespace and add a new line at the end
 }
 
 export async function extractPackageFile(
@@ -78,6 +78,9 @@ export async function extractPackageFile(
     registryUrls: [],
     deps: [],
   };
+
+  const variables: Record<string, string> = {};
+
   const lines = content.split(newlineRegex);
   for (lineNumber = 0; lineNumber < lines.length; lineNumber += 1) {
     const line = lines[lineNumber];
@@ -85,12 +88,20 @@ export async function extractPackageFile(
     for (const delimiter of delimiters) {
       sourceMatch =
         sourceMatch ??
-        regEx(`^source ${delimiter}([^${delimiter}]+)${delimiter}\\s*$`).exec(
-          line,
-        );
+        regEx(
+          `^source ((${delimiter}(?<registryUrl>[^${delimiter}]+)${delimiter})|(?<sourceName>\\w+))\\s*$`,
+        ).exec(line);
     }
     if (sourceMatch) {
-      res.registryUrls?.push(sourceMatch[1]);
+      if (sourceMatch.groups?.registryUrl) {
+        res.registryUrls?.push(sourceMatch.groups.registryUrl);
+      }
+      if (sourceMatch.groups?.sourceName) {
+        const registryUrl = variables[sourceMatch.groups.sourceName];
+        if (registryUrl) {
+          res.registryUrls?.push(registryUrl);
+        }
+      }
     }
 
     const rubyMatch = extractRubyVersion(line);
@@ -103,8 +114,18 @@ export async function extractPackageFile(
       });
     }
 
+    const variableMatchRegex = regEx(
+      `^(?<key>\\w+)\\s*=\\s*['"](?<value>[^'"]+)['"]`,
+    );
+    const variableMatch = variableMatchRegex.exec(line);
+    if (variableMatch) {
+      if (variableMatch.groups?.key) {
+        variables[variableMatch.groups?.key] = variableMatch.groups?.value;
+      }
+    }
+
     const gemMatchRegex = regEx(
-      `^\\s*gem\\s+(['"])(?<depName>[^'"]+)(['"])(\\s*,\\s*(?<currentValue>(['"])[^'"]+['"](\\s*,\\s*['"][^'"]+['"])?))?`,
+      `^\\s*gem\\s+(['"])(?<depName>[^'"]+)(['"])(\\s*,\\s*(?<currentValue>(['"])[^'"]+['"](\\s*,\\s*['"][^'"]+['"])?))?(\\s*,\\s*source:\\s*(['"](?<registryUrl>[^'"]+)['"]|(?<sourceName>[^'"]+)))?`,
     );
     const gemMatch = gemMatchRegex.exec(line);
     if (gemMatch) {
@@ -116,7 +137,7 @@ export async function extractPackageFile(
         const currentValue = gemMatch.groups.currentValue;
         dep.currentValue = currentValue;
       }
-      dep.datasource = RubyGemsDatasource.id;
+      dep.datasource = RubygemsDatasource.id;
       res.deps.push(dep);
     }
 
@@ -124,10 +145,18 @@ export async function extractPackageFile(
 
     for (const delimiter of delimiters) {
       const sourceBlockMatch = regEx(
-        `^source\\s+${delimiter}(.*?)${delimiter}\\s+do`,
+        `^source\\s+((${delimiter}(?<registryUrl>[^${delimiter}]+)${delimiter})|(?<sourceName>\\w+))\\s+do`,
       ).exec(line);
       if (sourceBlockMatch) {
-        const repositoryUrl = sourceBlockMatch[1];
+        let repositoryUrl = '';
+        if (sourceBlockMatch.groups?.registryUrl) {
+          repositoryUrl = sourceBlockMatch.groups.registryUrl;
+        }
+        if (sourceBlockMatch.groups?.sourceName) {
+          if (variables[sourceBlockMatch.groups.sourceName]) {
+            repositoryUrl = variables[sourceBlockMatch.groups.sourceName];
+          }
+        }
         const sourceLineNumber = lineNumber;
         let sourceContent = '';
         let sourceLine = '';

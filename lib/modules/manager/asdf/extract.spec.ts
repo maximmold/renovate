@@ -49,6 +49,7 @@ actionlint 0.7.0
 adr-tools 3.0.0
 argocd 2.5.4
 asdf-plugin-manager 1.1.1
+atmos 1.100.0
 awscli 2.8.6
 bun 0.2.2
 cargo-make 0.36.2
@@ -62,6 +63,7 @@ direnv 2.32.1
 dotnet-core 8.0.303
 dprint 0.32.2
 ecspresso 2.1.0
+editorconfig-checker 3.0.2
 elixir 1.14.1
 elm 0.19.1
 erlang 25.1.2
@@ -69,9 +71,10 @@ flutter 3.7.6-stable
 flux2 0.41.2
 gauche 0.9.12
 github-cli 2.32.1
+gitleaks 8.21.1
 gleam 1.3.1
 gohugo extended_0.104.3
-golang 1.19.2
+golang 1.23.3
 golangci-lint 1.52.2
 gomplate 3.11.7
 hadolint 2.12.0
@@ -83,18 +86,22 @@ idris 1.3.4
 java adoptopenjdk-16.0.0+36
 julia 1.8.2
 just 1.7.0
+k3s 1.31.2+k3s1
 kind 0.19.0
 kotlin 1.7.20
 kubectl 1.26.3
 kustomize 4.5.7
 lua 5.4.4
+markdownlint-cli2 0.13.0
 maven 3.9.6
 mimirtool 2.11.0
 minikube 1.33.1
 nim 1.6.8
 nodejs 18.12.0
 ocaml 4.14.0
+oci 3.50.0
 opentofu 1.6.0
+packer 1.11.2
 perl 5.37.5
 php 8.1.12
 pnpm 7.26.2
@@ -116,6 +123,7 @@ tflint 0.44.1
 tfsec 1.28.1
 trivy 0.33.0
 vault 1.15.1
+yamllint 1.35.0
 yq 4.40.5
 zig 0.9.1
 maestro 1.24.0
@@ -161,6 +169,13 @@ dummy 1.2.3
             datasource: 'github-releases',
             packageName: 'asdf-community/asdf-plugin-manager',
             depName: 'asdf-plugin-manager',
+            extractVersion: '^v(?<version>\\S+)',
+          },
+          {
+            currentValue: '1.100.0',
+            datasource: 'github-releases',
+            packageName: 'cloudposse/atmos',
+            depName: 'atmos',
             extractVersion: '^v(?<version>\\S+)',
           },
           {
@@ -248,6 +263,13 @@ dummy 1.2.3
             extractVersion: '^v(?<version>\\S+)',
           },
           {
+            currentValue: '3.0.2',
+            datasource: 'github-releases',
+            packageName: 'editorconfig-checker/editorconfig-checker',
+            depName: 'editorconfig-checker',
+            extractVersion: '^v(?<version>\\S+)',
+          },
+          {
             currentValue: '1.14.1',
             datasource: 'hexpm-bob',
             depName: 'elixir',
@@ -293,6 +315,13 @@ dummy 1.2.3
             extractVersion: '^v(?<version>\\S+)',
           },
           {
+            currentValue: '8.21.1',
+            datasource: 'github-releases',
+            packageName: 'gitleaks/gitleaks',
+            depName: 'gitleaks',
+            extractVersion: '^v(?<version>\\S+)',
+          },
+          {
             currentValue: '1.3.1',
             datasource: 'github-tags',
             packageName: 'gleam-lang/gleam',
@@ -307,7 +336,7 @@ dummy 1.2.3
             extractVersion: '^v(?<version>\\S+)',
           },
           {
-            currentValue: '1.19.2',
+            currentValue: '1.23.3',
             datasource: 'github-tags',
             packageName: 'golang/go',
             depName: 'golang',
@@ -389,6 +418,13 @@ dummy 1.2.3
             depName: 'just',
           },
           {
+            currentValue: '1.31.2+k3s1',
+            datasource: 'github-releases',
+            packageName: 'k3s-io/k3s',
+            depName: 'k3s',
+            extractVersion: '^v(?<version>\\S+)',
+          },
+          {
             currentValue: '0.19.0',
             datasource: 'github-releases',
             packageName: 'kubernetes-sigs/kind',
@@ -421,6 +457,13 @@ dummy 1.2.3
             datasource: 'github-releases',
             packageName: 'lua/lua',
             depName: 'lua',
+            extractVersion: '^v(?<version>\\S+)',
+          },
+          {
+            currentValue: '0.13.0',
+            datasource: 'github-tags',
+            packageName: 'DavidAnson/markdownlint-cli2',
+            depName: 'markdownlint-cli2',
             extractVersion: '^v(?<version>\\S+)',
           },
           {
@@ -462,10 +505,24 @@ dummy 1.2.3
             depName: 'ocaml',
           },
           {
+            currentValue: '3.50.0',
+            datasource: 'github-releases',
+            packageName: 'oracle/oci-cli',
+            depName: 'oci',
+            extractVersion: '^v(?<version>\\S+)',
+          },
+          {
             currentValue: '1.6.0',
             datasource: 'github-releases',
             packageName: 'opentofu/opentofu',
             depName: 'opentofu',
+            extractVersion: '^v(?<version>\\S+)',
+          },
+          {
+            currentValue: '1.11.2',
+            datasource: 'github-releases',
+            packageName: 'hashicorp/packer',
+            depName: 'packer',
             extractVersion: '^v(?<version>\\S+)',
           },
           {
@@ -609,6 +666,13 @@ dummy 1.2.3
             datasource: 'github-releases',
             packageName: 'hashicorp/vault',
             depName: 'vault',
+            extractVersion: '^v(?<version>\\S+)',
+          },
+          {
+            currentValue: '1.35.0',
+            datasource: 'github-tags',
+            packageName: 'adrienverge/yamllint',
+            depName: 'yamllint',
             extractVersion: '^v(?<version>\\S+)',
           },
           {

@@ -15,7 +15,8 @@ You need the following dependencies for local development:
 - pnpm `^9.0.0` (use corepack)
 - C++ compiler
 
-We recommend you use the version of Node.js defined in the repository's `.nvmrc`.
+We recommend you use the version of Node.js defined in the repository's `.nvmrc` or use [Volta](https://volta.sh/) to manage your tool versions.
+Volta will apply automatically the correct version of Node.js and pnpm when you enter the repository directory.
 
 #### Linux
 
@@ -172,6 +173,13 @@ If your code fails `pnpm test` due to a `prettier` rule then run `pnpm lint-fix`
 You usually don't need to fix any Prettier errors by hand.
 
 If you're only working on the documentation files, you can use the `pnpm doc-fix` command to format your work.
+
+## Documentation
+
+We use [MkDocs](https://www.mkdocs.org) to generate the documentation.
+You can run `pnpm build:docs` to generate the docs.
+Then use `pnpm mkdocs serve` to preview the documentation locally.
+The docs will update automatically when you run `pnpm build:docs` again, no need to stop the `pnpm mkdocs serve` command.
 
 ## Keeping your Renovate fork up to date
 

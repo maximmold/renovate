@@ -16,7 +16,8 @@ import {
 } from '../../../../constants/error-messages';
 import { logger, removeMeta } from '../../../../logger';
 import { getAdditionalFiles } from '../../../../modules/manager/npm/post-update';
-import { Pr, platform } from '../../../../modules/platform';
+import type { Pr } from '../../../../modules/platform';
+import { platform } from '../../../../modules/platform';
 import {
   ensureComment,
   ensureCommentRemoval,
@@ -180,6 +181,9 @@ export async function processBranch(
       branchConfig.pendingChecks &&
       !dependencyDashboardCheck
     ) {
+      logger.debug(
+        `Branch ${config.branchName} creation is disabled because internalChecksFilter was not met`,
+      );
       return {
         branchExists: false,
         prNo: branchPr?.number,
@@ -466,7 +470,7 @@ export async function processBranch(
       );
       config.reuseExistingBranch = false;
     } else {
-      config = { ...config, ...(await shouldReuseExistingBranch(config)) };
+      config = await shouldReuseExistingBranch(config);
     }
     // TODO: types (#22198)
     logger.debug(`Using reuseExistingBranch: ${config.reuseExistingBranch!}`);

@@ -1,10 +1,12 @@
 import { quote } from 'shlex';
+import upath from 'upath';
 import { GlobalConfig } from '../../../config/global';
 import { logger } from '../../../logger';
 import { exec } from '../../../util/exec';
 import type { ExecOptions } from '../../../util/exec/types';
 import { readLocalFile } from '../../../util/fs';
 import { getRepoStatus } from '../../../util/git';
+import { getGitEnvironmentVariables } from '../../../util/git/auth';
 import type {
   UpdateArtifact,
   UpdateArtifactsConfig,
@@ -28,7 +30,7 @@ function buildCommand(
   }
   command.push(
     '--answers-file',
-    quote(packageFileName),
+    quote(upath.basename(packageFileName)),
     '--vcs-ref',
     quote(newVersion),
   );
@@ -71,9 +73,12 @@ export async function updateArtifacts({
   }
 
   const command = buildCommand(config, packageFileName, newVersion);
+  const gitEnv = getGitEnvironmentVariables(['git-tags']);
   const execOptions: ExecOptions = {
+    cwdFile: packageFileName,
     docker: {},
     userConfiguredEnv: config.env,
+    extraEnv: gitEnv,
     toolConstraints: [
       {
         toolName: 'python',
